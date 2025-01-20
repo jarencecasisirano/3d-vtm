@@ -4,7 +4,7 @@
 
 This project involves creating 3D visualizations of vintage topographic maps using R. The goal is to combine historical cartography with modern rendering techniques to produce visually stunning and informative 3D maps.
 
-This project is inspired by a tutorial by Milos Popovic, which demonstrates how to bring vintage topographic maps to life with modern tools.
+This project is inspired by Milos Popovic's tutorial on `How to Make Amazing 3D Vintage Topo Maps`, which demonstrates how to bring vintage topographic maps to life with modern tools.
 
 ---
 
