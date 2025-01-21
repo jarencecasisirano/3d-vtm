@@ -47,3 +47,11 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# Data
+*.tif 
+*.tiff
+*.xml
+
+# Output
+*.png
