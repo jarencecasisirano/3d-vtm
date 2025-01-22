@@ -47,3 +47,13 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# Data
+*.tif 
+*.tiff
+*.xml
+*.hdr
+
+# Output
+*.png
+!3d_topo_north_africa.png
