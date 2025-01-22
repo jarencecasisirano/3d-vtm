@@ -1,21 +1,17 @@
 # 0 PROJ ERROR FIX
-
 plib <- Sys.getenv("PROJ_LIB")
 prj <- system.file("proj", package = "terra")[1]
 Sys.setenv("PROJ_LIB" = prj)
 
 # 1 PACKAGES
-
 libs <- c(
   "giscoR", "terra", "sf",
   "elevatr", "png", "rayshader"
 )
 
-installed_libs <- libs %in% rownames(
-  installed.packages()
-)
+installed_libs <- libs %in% rownames(installed.packages())
 
-if(any(installed_libs == F)){
+if (any(installed_libs == F)) {
   install.packages(
     libs[!installed_libs],
     dependencies = T
@@ -29,8 +25,7 @@ invisible(
   )
 )
 
-# 2. AFRICA, ASIA and EUROPE SHAFILE
-
+# 2. AFRICA, ASIA and EUROPE SHAPEFILE
 africa_sf <- giscoR::gisco_get_countries(
   region = c(
     "Africa", "Asia", "Europe"
@@ -42,7 +37,6 @@ africa_sf <- giscoR::gisco_get_countries(
 plot(sf::st_geometry(africa_sf))
 
 # 3. NORTH AFRICA OLD TOPO MAP
-
 north_africa_topo_tif <- terra::rast(
   "africa-north-per-4b235eadb17448f9.tiff"
 )
@@ -50,7 +44,6 @@ north_africa_topo_tif <- terra::rast(
 terra::plotRGB(north_africa_topo_tif)
 
 # 4. NORTH AFRICA EXTENT
-
 north_africa_bbox <- terra::ext(
   north_africa_topo_tif
 ) |>
@@ -62,7 +55,6 @@ north_africa_bbox <- terra::ext(
 plot(sf::st_geometry(north_africa_bbox))
 
 # 5. NORTH AFRICA ELEVATION
-
 north_africa_dem <- elevatr::get_elev_raster(
   locations = north_africa_bbox |> sf::st_as_sf(),
   z = 5, clip = "bbox"
@@ -72,13 +64,19 @@ north_africa_dem_3857 <- north_africa_dem |>
   terra::rast() |>
   terra::project("EPSG:3857")
 
-terra::plot(north_africa_dem_3857)
+# Downsample DEM to reduce resolution
+north_africa_dem_downsampled <- terra::aggregate(
+  north_africa_dem_3857,
+  fact = 2, # Adjust the factor to control the resolution
+  fun = mean
+)
+
+terra::plot(north_africa_dem_downsampled)
 
 # 6. RESAMPLE OLD TOPO MAP
-
 north_africa_topo_resampled <- terra::resample(
   x = north_africa_topo_tif,
-  y = north_africa_dem_3857,
+  y = north_africa_dem_downsampled,
   method = "bilinear"
 )
 
@@ -96,12 +94,11 @@ north_africa_topo_img <- png::readPNG(
 )
 
 # 7. RENDER SCENE
-
-h <- nrow(north_africa_dem_3857)
-w <- ncol(north_africa_dem_3857)
+h <- nrow(north_africa_dem_downsampled)
+w <- ncol(north_africa_dem_downsampled)
 
 north_africa_matrix <- rayshader::raster_to_matrix(
-  north_africa_dem_3857
+  north_africa_dem_downsampled
 )
 
 north_africa_matrix |>
@@ -122,7 +119,7 @@ north_africa_matrix |>
     shadow_darkness = 1,
     background = "white",
     windowsize = c(
-      w / 5, h / 5
+      w / 10, h / 10
     ),
     zoom = .42,
     phi = 89,
@@ -130,7 +127,6 @@ north_africa_matrix |>
   )
 
 # 8. RENDER IMAGE
-
 rayshader::render_highquality(
   filename = "3d_topo_north_africa.png",
   preview = T,
