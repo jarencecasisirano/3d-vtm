@@ -56,3 +56,4 @@ rsconnect/
 
 # Output
 *.png
+!3d_topo_north_africa.png
