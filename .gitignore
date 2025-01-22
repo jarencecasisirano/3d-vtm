@@ -52,6 +52,7 @@ rsconnect/
 *.tif 
 *.tiff
 *.xml
+*.hdr
 
 # Output
 *.png
